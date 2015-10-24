@@ -23,6 +23,10 @@ void ECSSystem::Update(float delta)
 {
 }
 
+void ECSSystem::BeforeUpdate(float delta)
+{
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 ECSStage::ECSStage()
@@ -52,7 +56,15 @@ void ECSStage::AddEntity(cocos2d::RefPtr<ECSEntity> p)
 void ECSStage::update(float delta)
 {
     Layer::update(delta);
-    
+
+	// 预更新所有组件
+	auto j = m_vecSystemList.begin();
+	while (j != m_vecSystemList.end())
+	{
+		(*j)->BeforeUpdate(delta);
+		++j;
+	}
+
     // 更新所有对象
     auto i = m_vecEntityList.begin();
     while (i != m_vecEntityList.end())
@@ -78,7 +90,7 @@ void ECSStage::update(float delta)
     }
     
     // 更新所有组件
-    auto j = m_vecSystemList.begin();
+    j = m_vecSystemList.begin();
     while (j != m_vecSystemList.end())
     {
         (*j)->Update(delta);

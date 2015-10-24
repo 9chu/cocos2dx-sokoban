@@ -21,7 +21,7 @@ namespace sokoban
 		TileCompoment,  // 瓷砖组件
 		TriggerCompoment,  // 触发器组件
 		TriggerEmitterCompoment,  // 触发者组件
-        PlayerCompoment,  // !! TODO 玩家组件，用于控制玩家行为
+        PlayerCompoment,  // 玩家组件，用于控制玩家行为
         
         MAX_COMPOMENT_,  // 组件最大值
     };
@@ -103,6 +103,9 @@ namespace sokoban
         
         /// \brief 更新事件
         virtual void Update(float delta);
+
+		/// \brief 在更新前调用
+		virtual void BeforeUpdate(float delta);
     };
     
     /// \brief ECS舞台

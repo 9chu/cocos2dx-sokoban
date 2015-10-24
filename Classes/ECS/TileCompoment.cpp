@@ -8,13 +8,49 @@ TileSystem::TileSystem(uint32_t iTileWidth, uint32_t iTileHeight)
 {
 }
 
-TileObjectType TileSystem::GetObjectTypeAt(int32_t iXIndex, int32_t iYIndex)const noexcept
+void TileSystem::setObjectAt(int32_t iXIndex, int32_t iYIndex, ECSEntity* p)noexcept
 {
 	if (iXIndex < 0 || iYIndex < 0 || iXIndex >= (int)m_iWidth || iYIndex >= (int)m_iHeight)
-		return TileObjectType::None;
+	{
+		CHU_LOGWARN("out of range, args x=%d y=%d", iXIndex, iYIndex);
+		return;
+	}
 
 	uint32_t iIndex = iXIndex + iYIndex * m_iWidth;
-	return m_arrObjectType[iIndex];
+	m_arrObjectMap[iIndex] = p;
+}
+
+void TileSystem::setObjectAt(cocos2d::Vec2 vecPosition, ECSEntity* p)noexcept
+{
+	setObjectAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight, p);
+}
+
+void TileSystem::clearObjectMap()noexcept
+{
+	if (m_arrObjectMap.size() > 0)
+		::memset(&m_arrObjectMap[0], 0, sizeof(m_arrObjectMap[0]) * m_arrObjectList.size());
+}
+
+ECSEntity* TileSystem::GetObjectAt(int32_t iXIndex, int32_t iYIndex)const noexcept
+{
+	if (iXIndex < 0 || iYIndex < 0 || iXIndex >= (int)m_iWidth || iYIndex >= (int)m_iHeight)
+		return nullptr;
+
+	uint32_t iIndex = iXIndex + iYIndex * m_iWidth;
+	return m_arrObjectMap[iIndex];
+}
+
+ECSEntity* TileSystem::GetObjectAt(cocos2d::Vec2 vecPosition)const noexcept
+{
+	return GetObjectAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight);
+}
+
+TileObjectType TileSystem::GetObjectTypeAt(int32_t iXIndex, int32_t iYIndex)const noexcept
+{
+	auto pObj = GetObjectAt(iXIndex, iYIndex);
+	if (!pObj)
+		return TileObjectType::None;
+	return pObj->GetCompoment<TileCompoment>()->GetObjectType();
 }
 
 TileObjectType TileSystem::GetObjectTypeAt(cocos2d::Vec2 vecPosition)const noexcept
@@ -22,35 +58,9 @@ TileObjectType TileSystem::GetObjectTypeAt(cocos2d::Vec2 vecPosition)const noexc
 	return GetObjectTypeAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight);
 }
 
-void TileSystem::SetObjectTypeAt(int32_t iXIndex, int32_t iYIndex, TileObjectType iType)noexcept
-{
-	if (iXIndex < 0 || iYIndex < 0 || iXIndex >= (int)m_iWidth || iYIndex >= (int)m_iHeight)
-	{
-		CHU_LOGWARN("out of range, args x=%d y=%d", iXIndex, iYIndex);
-		return;
-	}	
-
-	uint32_t iIndex = iXIndex + iYIndex * m_iWidth;
-	m_arrObjectType[iIndex] = iType;
-}
-
-void TileSystem::SetObjectTypeAt(cocos2d::Vec2 vecPosition, TileObjectType iType)noexcept
-{
-	SetObjectTypeAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight, iType);
-}
-
-void TileSystem::ClearObjectType()noexcept
-{
-	for (size_t i = 0; i < m_iWidth; ++i)
-	{
-		for (size_t j = 0; j < m_iHeight; ++j)
-			m_arrObjectType[i + j * m_iWidth] = TileObjectType::None;
-	}
-}
-
 void TileSystem::ResetSize(uint32_t iWidth, uint32_t iHeight)
 {
-	m_arrObjectType.resize(iWidth * iHeight);
+	m_arrObjectMap.resize(iWidth * iHeight);
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
 }
@@ -58,15 +68,39 @@ void TileSystem::ResetSize(uint32_t iWidth, uint32_t iHeight)
 void TileSystem::AddEntity(ECSEntity* p)
 {
 	BaseCompoment* pBaseCompoment = p->GetCompoment<BaseCompoment>();
-	TileCompoment* pStaticCompoment = p->GetCompoment<TileCompoment>();
-	if (pBaseCompoment && pStaticCompoment)
-		SetObjectTypeAt(pBaseCompoment->GetPosition(), pStaticCompoment->GetObjectType());
+	TileCompoment* pTileCompoment = p->GetCompoment<TileCompoment>();
+
+	if (pBaseCompoment && pTileCompoment)
+		m_arrObjectList.emplace_back(p);
 }
 
 void TileSystem::RemoveEntity(ECSEntity* p)
 {
 	BaseCompoment* pBaseCompoment = p->GetCompoment<BaseCompoment>();
-	TileCompoment* pStaticCompoment = p->GetCompoment<TileCompoment>();
-	if (pBaseCompoment && pStaticCompoment)
-		SetObjectTypeAt(pBaseCompoment->GetPosition(), TileObjectType::None);
+	TileCompoment* pTileCompoment = p->GetCompoment<TileCompoment>();
+
+	if (pBaseCompoment && pTileCompoment)
+	{
+		for (auto i = m_arrObjectList.begin(); i != m_arrObjectList.end(); ++i)
+		{
+			if (*i == p)
+			{
+				m_arrObjectList.erase(i);
+				return;
+			}
+		}
+	}
+}
+
+void TileSystem::BeforeUpdate(float delta)
+{
+	clearObjectMap();
+
+	for (auto& p : m_arrObjectList)
+	{
+		BaseCompoment* pBaseCompoment = p->GetCompoment<BaseCompoment>();
+		TileCompoment* pStaticCompoment = p->GetCompoment<TileCompoment>();
+		if (pBaseCompoment && pStaticCompoment)
+			setObjectAt(pBaseCompoment->GetPosition(), p);
+	}
 }

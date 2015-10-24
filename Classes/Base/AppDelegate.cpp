@@ -26,12 +26,12 @@ bool AppDelegate::applicationDidFinishLaunching()
     auto glview = director->getOpenGLView();
     if (!glview)
     {
-        glview = GLViewImpl::createWithRect(u8"推箱子", Rect(0, 0, CHU_DESIGN_WIDTH, CHU_DESIGN_HEIGHT));
+        glview = GLViewImpl::createWithRect(u8"推箱子", Rect(0, 0, SOKOBAN_DESIGN_WIDTH, SOKOBAN_DESIGN_HEIGHT));
         director->setOpenGLView(glview);
     }
 
     // 分辨率适配
-    director->getOpenGLView()->setDesignResolutionSize(CHU_DESIGN_WIDTH, CHU_DESIGN_HEIGHT, ResolutionPolicy::FIXED_HEIGHT);
+    director->getOpenGLView()->setDesignResolutionSize(SOKOBAN_DESIGN_WIDTH, SOKOBAN_DESIGN_HEIGHT, ResolutionPolicy::FIXED_HEIGHT);
 
     // 显示FPS
     director->setDisplayStats(true);

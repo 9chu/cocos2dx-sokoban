@@ -72,7 +72,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\cocos\audio\include;$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\external;$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\external\chipmunk\include\chipmunk;$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\extensions;..\Classes;..;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USE_MATH_DEFINES;GL_GLEXT_PROTOTYPES;CC_ENABLE_CHIPMUNK_INTEGRATION=1;COCOS2D_DEBUG=2;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -152,6 +152,7 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\prebuilt\win32\*.*" "$(OutDir)"
     <ClCompile Include="..\Classes\Base\SceneBase.cpp" />
     <ClCompile Include="..\Classes\Base\TMXFile.cpp" />
     <ClCompile Include="..\Classes\ECS\BaseCompoment.cpp" />
+    <ClCompile Include="..\Classes\ECS\PlayerCompoment.cpp" />
     <ClCompile Include="..\Classes\ECS\TileCompoment.cpp" />
     <ClCompile Include="..\Classes\ECS\TriggerCompoment.cpp" />
     <ClCompile Include="..\Classes\Scene\GameScene.cpp" />
@@ -165,6 +166,7 @@ xcopy /Y /Q "$(COCOS_FRAMEWORKS)\cocos2d-x-3.8\prebuilt\win32\*.*" "$(OutDir)"
     <ClInclude Include="..\Classes\Base\TMXFile.h" />
     <ClInclude Include="..\Classes\Common.h" />
     <ClInclude Include="..\Classes\ECS\BaseCompoment.h" />
+    <ClInclude Include="..\Classes\ECS\PlayerCompoment.h" />
     <ClInclude Include="..\Classes\ECS\TileCompoment.h" />
     <ClInclude Include="..\Classes\ECS\TriggerCompoment.h" />
     <ClInclude Include="..\Classes\SceneDefination.h" />

@@ -51,6 +51,9 @@
     <ClCompile Include="..\Classes\ECS\TriggerCompoment.cpp">
       <Filter>src\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="..\Classes\ECS\PlayerCompoment.cpp">
+      <Filter>src\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -87,6 +90,9 @@
       <Filter>src\ECS</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\ECS\TriggerCompoment.h">
+      <Filter>src\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\ECS\PlayerCompoment.h">
       <Filter>src\ECS</Filter>
     </ClInclude>
   </ItemGroup>

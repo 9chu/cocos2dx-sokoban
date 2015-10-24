@@ -19,10 +19,13 @@ namespace sokoban
 		// <触发器, 触发者> 回调控制器
 		using Callback = std::function<void(ECSEntity*, ECSEntity*)>;
 	private:
-		Callback m_pCallback;
+		Callback m_pEnterCallback;
+		Callback m_pLeaveCallback;
 	public:
-		Callback GetCallback()const noexcept { return m_pCallback; }
-		void SetCallback(Callback cb)noexcept { m_pCallback = cb; }
+		Callback GetEnterCallback()const noexcept { return m_pEnterCallback; }
+		void SetEnterCallback(Callback cb)noexcept { m_pEnterCallback = cb; }
+		Callback GetLeaveCallback()const noexcept { return m_pLeaveCallback; }
+		void SetLeaveCallback(Callback cb)noexcept { m_pLeaveCallback = cb; }
 	};
 
 	/// \brief 触发者组件

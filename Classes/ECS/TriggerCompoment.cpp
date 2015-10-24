@@ -69,6 +69,11 @@ void TriggerSystem::UpdateEntity(ECSEntity* p)
 			{
 				// 从触发态归位
 				pTriggerEmitterCompoment->m_bTriggered = false;
+
+				// 执行回调
+				auto pCallback = pHitTrigger->GetCompoment<TriggerCompoment>()->GetLeaveCallback();
+				if (pCallback)
+					pCallback(pHitTrigger, p);
 			}
 			else if (!pTriggerEmitterCompoment->IsTriggered() && pHitTrigger)
 			{
@@ -76,7 +81,9 @@ void TriggerSystem::UpdateEntity(ECSEntity* p)
 				pTriggerEmitterCompoment->m_bTriggered = true;
 
 				// 执行回调
-				pHitTrigger->GetCompoment<TriggerCompoment>()->GetCallback()(pHitTrigger, p);
+				auto pCallback = pHitTrigger->GetCompoment<TriggerCompoment>()->GetEnterCallback();
+				if (pCallback)
+					pCallback(pHitTrigger, p);
 			}
 		}
 	}

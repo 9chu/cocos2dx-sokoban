@@ -22,7 +22,7 @@ void CocosHelper::LoadNodeAndTimelineFromCSB(const char* pPath, cocos2d::RefPtr<
 void CocosHelper::AdjustLayerHorizontalCentered(cocos2d::Node* pNode)
 {
     cocos2d::Size tSize = cocos2d::Director::getInstance()->getVisibleSize();
-    float tScaleRate = tSize.height / CHU_DESIGN_HEIGHT;
-    float tOffsetX = (tSize.width - tScaleRate * CHU_DESIGN_WIDTH) / 2.f / tScaleRate;
+    float tScaleRate = tSize.height / SOKOBAN_DESIGN_HEIGHT;
+    float tOffsetX = (tSize.width - tScaleRate * SOKOBAN_DESIGN_WIDTH) / 2.f / tScaleRate;
     pNode->setPosition(pNode->getPositionX() + tOffsetX, pNode->getPositionY() + 0.f);
 }

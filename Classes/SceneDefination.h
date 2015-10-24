@@ -7,8 +7,10 @@
 #pragma once
 
 //////////////////////////////////////// 场景参数
-#define CHU_DESIGN_WIDTH 1334
-#define CHU_DESIGN_HEIGHT 750
+#define SOKOBAN_DESIGN_WIDTH 1334
+#define SOKOBAN_DESIGN_HEIGHT 750
+#define SOKOBAN_TILE_WIDTH 30
+#define SOKOBAN_TILE_HEIGHT 30
 
 //////////////////////////////////////// 场景事件
 namespace sokoban
