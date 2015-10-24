@@ -1,0 +1,15 @@
+<Solution>
+  <PropertyGroup Name="Sokoban" Version="2.3.2.3" Type="CocosStudio" />
+  <SolutionFolder>
+    <Group ctype="ResourceGroup">
+      <RootFolder Name=".">
+        <Folder Name="Texture">
+          <Image Name="Tiles.png" />
+        </Folder>
+        <Folder Name="Level">
+          <TmxFile Name="1.tmx" />
+        </Folder>
+      </RootFolder>
+    </Group>
+  </SolutionFolder>
+</Solution>
