@@ -10,6 +10,8 @@
           <TmxFile Name="1.tmx" />
           <TmxFile Name="2.tmx" />
           <TmxFile Name="3.tmx" />
+          <TmxFile Name="5.tmx" />
+          <TmxFile Name="4.tmx" />
         </Folder>
       </RootFolder>
     </Group>
