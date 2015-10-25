@@ -14,7 +14,7 @@ void TriggerSystem::AddEntity(ECSEntity* p)
 	TriggerCompoment* pTriggerCompoment = p->GetCompoment<TriggerCompoment>();
 	
 	if (pBaseCompoment && pTriggerCompoment)
-		m_arrTriggerList.emplace_back(p);
+        m_arrTriggerList.emplace_back(p);
 }
 
 void TriggerSystem::RemoveEntity(ECSEntity* p)
@@ -35,7 +35,7 @@ void TriggerSystem::RemoveEntity(ECSEntity* p)
 	}
 }
 
-void TriggerSystem::UpdateEntity(ECSEntity* p)
+void TriggerSystem::UpdateEntity(float delta, ECSEntity* p)
 {
 	BaseCompoment* pBaseCompoment = p->GetCompoment<BaseCompoment>();
 	TriggerEmitterCompoment* pTriggerEmitterCompoment = p->GetCompoment<TriggerEmitterCompoment>();
@@ -44,19 +44,20 @@ void TriggerSystem::UpdateEntity(ECSEntity* p)
 	{
 		if (!pTriggerEmitterCompoment->IsDisabled())
 		{
-			int32_t iTriggerEmitterX = (int)pBaseCompoment->GetPosition().x / m_iTileWidth;
-			int32_t iTriggerEmitterY = (int)pBaseCompoment->GetPosition().y / m_iTileHeight;
+			int32_t iTriggerEmitterX = (int)(pBaseCompoment->GetPosition().x + m_iTileWidth / 2.f) / m_iTileWidth;
+			int32_t iTriggerEmitterY = (int)(pBaseCompoment->GetPosition().y + m_iTileHeight / 2.f) / m_iTileHeight;
 
 			ECSEntity* pHitTrigger = nullptr;
 
 			for (auto& pTrigger : m_arrTriggerList)
 			{
-				// ÒÀ´Î¼ì²éÊÇ·ñ¿É´¥·¢
+				// ä¾æ¬¡æ£€æŸ¥æ˜¯å¦å¯è§¦å‘
 				BaseCompoment* pTriggerBaseCompoment = pTrigger->GetCompoment<BaseCompoment>();
-				TriggerCompoment* pTriggerCompoment = pTrigger->GetCompoment<TriggerCompoment>();
 				
-				int32_t iTriggerX = pTriggerBaseCompoment->GetPosition().x / m_iTileWidth;
-				int32_t iTriggerY = pTriggerBaseCompoment->GetPosition().y / m_iTileHeight;
+                assert(pTriggerBaseCompoment != nullptr);
+                
+				int32_t iTriggerX = (int)(pTriggerBaseCompoment->GetPosition().x + m_iTileWidth / 2.f) / m_iTileWidth;
+				int32_t iTriggerY = (int)(pTriggerBaseCompoment->GetPosition().y + m_iTileHeight / 2.f) / m_iTileHeight;
 
 				if (iTriggerEmitterX == iTriggerX && iTriggerEmitterY == iTriggerY)
 				{
@@ -67,21 +68,21 @@ void TriggerSystem::UpdateEntity(ECSEntity* p)
 
 			if (pTriggerEmitterCompoment->IsTriggered() && !pHitTrigger)
 			{
-				// ´Ó´¥·¢Ì¬¹éÎ»
+				// ä»Žè§¦å‘æ€å½’ä½
 				pTriggerEmitterCompoment->m_bTriggered = false;
 
-				// Ö´ÐÐ»Øµ÷
-				auto pCallback = pHitTrigger->GetCompoment<TriggerCompoment>()->GetLeaveCallback();
+				// æ‰§è¡Œå›žè°ƒ
+                auto pCallback = pTriggerEmitterCompoment->GetLeaveCallback();
 				if (pCallback)
-					pCallback(pHitTrigger, p);
+					pCallback(p);
 			}
 			else if (!pTriggerEmitterCompoment->IsTriggered() && pHitTrigger)
 			{
-				// ´ÓÆÕÍ¨Ì¬´¥·¢
+				// ä»Žæ™®é€šæ€è§¦å‘
 				pTriggerEmitterCompoment->m_bTriggered = true;
 
-				// Ö´ÐÐ»Øµ÷
-				auto pCallback = pHitTrigger->GetCompoment<TriggerCompoment>()->GetEnterCallback();
+				// æ‰§è¡Œå›žè°ƒ
+				auto pCallback = pTriggerEmitterCompoment->GetEnterCallback();
 				if (pCallback)
 					pCallback(pHitTrigger, p);
 			}

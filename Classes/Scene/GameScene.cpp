@@ -82,7 +82,7 @@ GameStageLayer::GameStageLayer(IPlayerInputProvider* pInput)
 	AddSystem(m_pPlayerSystem.get());
 
 	// !TODO
-	LoadLevel("Level/1.tmx");
+	LoadLevel("Level/3.tmx");
 }
 
 void GameStageLayer::update(float delta)
@@ -93,14 +93,24 @@ void GameStageLayer::update(float delta)
 
 void GameStageLayer::onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
 {
-	// !TODO
-	CHU_LOGINFO("hit enter");
+    auto pBase = pEmitter->GetCompoment<BaseCompoment>();
+    auto pSprite = dynamic_cast<Sprite*>(pBase->GetNativeNode());
+    
+    assert(pSprite);
+    
+    // 红色箱子的坐标
+    pSprite->setTextureRect(Rect(60.f, 0.f, 30.f, 30.f));
 }
 
-void GameStageLayer::onLeaveTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
+void GameStageLayer::onLeaveTrigger(ECSEntity* pEmitter)
 {
-	// !TODO
-	CHU_LOGINFO("hit leave");
+    auto pBase = pEmitter->GetCompoment<BaseCompoment>();
+    auto pSprite = dynamic_cast<Sprite*>(pBase->GetNativeNode());
+    
+    assert(pSprite);
+    
+    // 黄色箱子的坐标
+    pSprite->setTextureRect(Rect(30.f, 0.f, 30.f, 30.f));
 }
 
 void GameStageLayer::LoadLevel(const char* pPath)
@@ -114,10 +124,9 @@ void GameStageLayer::LoadLevel(const char* pPath)
 	for (uint32_t i = 0; i < pFile->GetLayerCount(); ++i)
 	{
 		const TMXMapLayerBase* pLayer = pFile->GetLayer(i);
-		const TMXCustomPropertyList* pPropertyList = pLayer->GetCustomPropertyList();
 
 		if (!pLayer->IsTiledLayer())
-			CHU_LOGERROR("unsupported layer type (Layer %s).", pLayer->GetName());
+			CHU_LOGERROR("unsupported layer type (Layer %s).", pLayer->GetName().c_str());
 		else
 		{
 			const TMXMapTiledLayer* pTiledLayer = static_cast<const TMXMapTiledLayer*>(pLayer);
@@ -160,18 +169,17 @@ void GameStageLayer::LoadLevel(const char* pPath)
 								pEntity->SetCompoment(make_ref<TileCompoment>(TileObjectType::Wall));
 							else if (tValue == "box")
 							{
+                                auto pEmitter = make_ref<TriggerEmitterCompoment>();
+                                
 								pEntity->SetCompoment(make_ref<TileCompoment>(TileObjectType::Box));
-								pEntity->SetCompoment(make_ref<TriggerEmitterCompoment>());
+								pEntity->SetCompoment(pEmitter);
+                                
+                                // 绑定事件回调
+                                pEmitter->SetEnterCallback(std::bind(&GameStageLayer::onEnterTrigger, this, placeholders::_1, placeholders::_2));
+                                pEmitter->SetLeaveCallback(std::bind(&GameStageLayer::onLeaveTrigger, this, placeholders::_1));
 							}
 							else if (tValue == "target")
-							{
-								RefPtr<TriggerCompoment> pTriggerCompoment = make_ref<TriggerCompoment>();
-								pEntity->SetCompoment(pTriggerCompoment);
-
-								// 绑定事件回调
-								pTriggerCompoment->SetEnterCallback(std::bind(&GameStageLayer::onEnterTrigger, this, placeholders::_1, placeholders::_2));
-								pTriggerCompoment->SetLeaveCallback(std::bind(&GameStageLayer::onLeaveTrigger, this, placeholders::_1, placeholders::_2));
-							}
+								pEntity->SetCompoment(make_ref<TriggerCompoment>());
 							else if (tValue == "player")
 								pEntity->SetCompoment(make_ref<PlayerCompoment>());
 							else
@@ -184,6 +192,11 @@ void GameStageLayer::LoadLevel(const char* pPath)
 			}
 		}
 	}
+    
+    // 调整相机
+    float tCenterX = pFile->GetWidth() * SOKOBAN_TILE_WIDTH / 2.f;
+    float tCenterY = pFile->GetHeight() * SOKOBAN_TILE_HEIGHT / 2.f;
+    m_pBaseSystem->GetCamera()->setPosition(tCenterX, tCenterY);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

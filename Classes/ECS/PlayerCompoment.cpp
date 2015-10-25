@@ -1,26 +1,118 @@
 #include "PlayerCompoment.h"
 #include "BaseCompoment.h"
 
+#define ANIMATION_INTV 1.f
+#define ANIMATION_FRAMECNT 2
+
 NAMESPACE_SOKOBAN;
 
-void PlayerSystem::UpdateEntity(ECSEntity* p)
+void PlayerSystem::changeAnimation(PlayerInput iInput, PlayerCompoment* pPlayerCompoment)
+{
+    PlayerAnimation iTargetAnimation = PlayerAnimation::DownAnimation;
+    
+    switch (iInput)
+    {
+    case PlayerInput::Left:
+        iTargetAnimation = PlayerAnimation::LeftAnimation;
+        break;
+    case PlayerInput::Right:
+        iTargetAnimation = PlayerAnimation::RightAnimation;
+        break;
+    case PlayerInput::Up:
+        iTargetAnimation = PlayerAnimation::UpAnimation;
+        break;
+    case PlayerInput::Down:
+        iTargetAnimation = PlayerAnimation::DownAnimation;
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    
+    if (pPlayerCompoment->GetAnimationState() != iTargetAnimation)
+    {
+        pPlayerCompoment->SetAnimationState(iTargetAnimation);
+        
+        // ‰∫§Áî±UpdateAnimationËøõË°åÂä®ÁîªÂàáÊç¢
+        pPlayerCompoment->SetAnimationFrame(ANIMATION_FRAMECNT);
+        pPlayerCompoment->SetAnimationTimer(ANIMATION_INTV);
+    }
+}
+
+void PlayerSystem::updateAnimation(float delta, BaseCompoment* pBaseCompoment, PlayerCompoment* pPlayerCompoment)
+{
+    bool bChangeSprite = false;
+    
+    // ÂèòÊõ¥Âä®Áîª
+    float iTimer = pPlayerCompoment->SetAnimationTimer(pPlayerCompoment->GetAnimationTimer() + delta);
+    if (iTimer >= ANIMATION_INTV)  // Âä®ÁîªÈó¥Èöî
+    {
+        uint32_t iFrame = pPlayerCompoment->SetAnimationFrame(pPlayerCompoment->GetAnimationFrame() + 1);
+        if (iFrame >= ANIMATION_FRAMECNT)
+            pPlayerCompoment->SetAnimationFrame(0);
+        
+        pPlayerCompoment->SetAnimationTimer(0.f);
+        bChangeSprite = true;
+    }
+    
+    if (bChangeSprite)
+    {
+        static Rect s_PlayerAnimationList[][ANIMATION_FRAMECNT] = {
+            {
+                Rect(2 * SOKOBAN_TILE_WIDTH, 2 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT),
+                Rect(3 * SOKOBAN_TILE_WIDTH, 2 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT)
+            },  // left animation
+            {
+                Rect(0 * SOKOBAN_TILE_WIDTH, 2 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT),
+                Rect(1 * SOKOBAN_TILE_WIDTH, 2 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT)
+            },  // right animation
+            {
+                Rect(2 * SOKOBAN_TILE_WIDTH, 3 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT),
+                Rect(3 * SOKOBAN_TILE_WIDTH, 3 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT)
+            },  // up animation
+            {
+                Rect(0 * SOKOBAN_TILE_WIDTH, 3 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT),
+                Rect(1 * SOKOBAN_TILE_WIDTH, 3 * SOKOBAN_TILE_HEIGHT,
+                     SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT)
+            }  // down animation
+        };
+        
+        // Ëé∑ÂèñSpriteÊé•Âè£
+        Sprite* pSprite = dynamic_cast<Sprite*>(pBaseCompoment->GetNativeNode());
+        assert(pSprite);
+        
+        PlayerAnimation iState = pPlayerCompoment->GetAnimationState();
+        uint32_t iFrame = pPlayerCompoment->GetAnimationFrame();
+        
+        pSprite->setTextureRect(s_PlayerAnimationList[static_cast<int>(iState)][iFrame]);
+    }
+}
+
+void PlayerSystem::UpdateEntity(float delta, ECSEntity* p)
 {
 	BaseCompoment* pBaseCompoment = p->GetCompoment<BaseCompoment>();
 	PlayerCompoment* pPlayerCompoment = p->GetCompoment<PlayerCompoment>();
 	
-	// ¥¶¿ÌÕÊº“£¨Õ®≥£÷ª”–“ª∏ˆ µ¿˝
+	// Â§ÑÁêÜÁé©ÂÆ∂ÔºåÈÄöÂ∏∏Âè™Êúâ‰∏Ä‰∏™ÂÆû‰æã
 	if (pBaseCompoment && pPlayerCompoment)
 	{
-		// ªÒ»°ÕÊº“µ±«∞µƒŒª÷√
-		int32_t iPlayerX = (int)pBaseCompoment->GetPosition().x / SOKOBAN_TILE_WIDTH;
-		int32_t iPlayerY = (int)pBaseCompoment->GetPosition().y / SOKOBAN_TILE_HEIGHT;
+		// Ëé∑ÂèñÁé©ÂÆ∂ÂΩìÂâçÁöÑ‰ΩçÁΩÆ
+		int32_t iPlayerX = (int)(pBaseCompoment->GetPosition().x + SOKOBAN_TILE_WIDTH / 2.f) / SOKOBAN_TILE_WIDTH;
+		int32_t iPlayerY = (int)(pBaseCompoment->GetPosition().y + SOKOBAN_TILE_HEIGHT / 2.f) / SOKOBAN_TILE_HEIGHT;
 
-		// ÕÊº“œ¬“ª≤Ω«∞Ω¯∑ΩœÚ
+		// Áé©ÂÆ∂‰∏ã‰∏ÄÊ≠•ÂâçËøõÊñπÂêë
 		int32_t iDirectionX = 0;
 		int32_t iDirectionY = 0;
 		Vec2 vecOffset(0.f, 0.f);
 
-		// ªÒ»°ÕÊº“ ‰»Î
+		// Ëé∑ÂèñÁé©ÂÆ∂ËæìÂÖ•
 		PlayerInput tLastInput = m_pProvider->GetPlayerLastInput();
 		switch (tLastInput)
 		{
@@ -44,18 +136,22 @@ void PlayerSystem::UpdateEntity(ECSEntity* p)
 			break;
 		}
 
-		// º∆À„œ¬“ª∏ˆ∏Ò◊”
+		// ËÆ°ÁÆó‰∏ã‰∏Ä‰∏™Ê†ºÂ≠ê
 		int32_t iPlayerNextX = iPlayerX + iDirectionX;
 		int32_t iPlayerNextY = iPlayerY + iDirectionY;
 		Vec2 vecPosition = pBaseCompoment->GetPosition() + vecOffset;
 
-		// ºÏ≤È «∑Òø…¥Ô
+		// Ê£ÄÊü•ÊòØÂê¶ÂèØËææ
 		bool bReachable = false;
 		TileObjectType iObjType = m_pTileSystem->GetObjectTypeAt(iPlayerNextX, iPlayerNextY);
-		switch (iObjType)
+        
+        // iDirectionX == 0 and iDirectionY == 0 -> iObjType == None
+        assert(!(iDirectionX == 0 && iDirectionY == 0 && iObjType != TileObjectType::None));
+		
+        switch (iObjType)
 		{
 		case TileObjectType::None:
-			bReachable = true;
+			bReachable = (iDirectionX != 0 || iDirectionY != 0);
 			break;
 		case TileObjectType::Wall:
 			bReachable = false;
@@ -64,25 +160,33 @@ void PlayerSystem::UpdateEntity(ECSEntity* p)
 			{
 				ECSEntity* pBox = m_pTileSystem->GetObjectAt(iPlayerNextX, iPlayerNextY);
 
-				// º∆À„œ‰◊”œ¬“ª∏ˆŒª÷√
+				// ËÆ°ÁÆóÁÆ±Â≠ê‰∏ã‰∏Ä‰∏™‰ΩçÁΩÆ
 				int32_t iBoxNextX = iPlayerNextX + iDirectionX;
 				int32_t iBoxNextY = iPlayerNextY + iDirectionY;
 				Vec2 vecBoxPosition = pBox->GetCompoment<BaseCompoment>()->GetPosition() + vecOffset;
 
-				// »Áπ˚œ‰◊”œ¬“ª∏ˆŒª÷√ø…¥Ô
+				// Â¶ÇÊûúÁÆ±Â≠ê‰∏ã‰∏Ä‰∏™‰ΩçÁΩÆÂèØËææ
 				if (m_pTileSystem->GetObjectTypeAt(iBoxNextX, iBoxNextY) == TileObjectType::None)
 				{
-					bReachable = true;  // ÕÊº“ø…¥Ô–¬Œª÷√
+					bReachable = true;  // Áé©ÂÆ∂ÂèØËææÊñ∞‰ΩçÁΩÆ
 
-					// Ω´œ‰◊”∑≈÷√µΩ–¬µƒŒª÷√
+					// Â∞ÜÁÆ±Â≠êÊîæÁΩÆÂà∞Êñ∞ÁöÑ‰ΩçÁΩÆ
 					pBox->GetCompoment<BaseCompoment>()->SetPosition(vecBoxPosition);
 				}
 			}
 			break;
 		}
 
-		// ∏¸–¬ÕÊº“Œª÷√
+		// Êõ¥Êñ∞Áé©ÂÆ∂‰ΩçÁΩÆ
 		if (bReachable)
+        {
 			pBaseCompoment->SetPosition(vecPosition);
+            
+            // ÂèòÊõ¥Âä®Áîª
+            changeAnimation(tLastInput, pPlayerCompoment);
+        }
+        
+        // Êõ¥Êñ∞Âä®Áîª
+        updateAnimation(delta, pBaseCompoment, pPlayerCompoment);
 	}
 }

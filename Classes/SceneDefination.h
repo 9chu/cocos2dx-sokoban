@@ -7,8 +7,8 @@
 #pragma once
 
 //////////////////////////////////////// 场景参数
-#define SOKOBAN_DESIGN_WIDTH 1334
-#define SOKOBAN_DESIGN_HEIGHT 750
+#define SOKOBAN_DESIGN_WIDTH 960
+#define SOKOBAN_DESIGN_HEIGHT 640
 #define SOKOBAN_TILE_WIDTH 30
 #define SOKOBAN_TILE_HEIGHT 30
 

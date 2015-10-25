@@ -2,7 +2,7 @@
 * \file TriggerCompoment.h
 * \author chu
 * \date 2015/10/24
-* \brief ´¥·¢Æ÷×é¼ş
+* \brief è§¦å‘å™¨ç»„ä»¶
 */
 #pragma once
 #include "../Common.h"
@@ -10,33 +10,28 @@
 
 namespace sokoban
 {
-	/// \brief ´¥·¢Æ÷×é¼ş
+	/// \brief è§¦å‘å™¨ç»„ä»¶
 	class TriggerCompoment :
 		public ECSCompoment
 	{
 		CHU_COMPOMENT_DEF(ECSCompomentType::TriggerCompoment);
-	public:
-		// <´¥·¢Æ÷, ´¥·¢Õß> »Øµ÷¿ØÖÆÆ÷
-		using Callback = std::function<void(ECSEntity*, ECSEntity*)>;
-	private:
-		Callback m_pEnterCallback;
-		Callback m_pLeaveCallback;
-	public:
-		Callback GetEnterCallback()const noexcept { return m_pEnterCallback; }
-		void SetEnterCallback(Callback cb)noexcept { m_pEnterCallback = cb; }
-		Callback GetLeaveCallback()const noexcept { return m_pLeaveCallback; }
-		void SetLeaveCallback(Callback cb)noexcept { m_pLeaveCallback = cb; }
 	};
 
-	/// \brief ´¥·¢Õß×é¼ş
+	/// \brief è§¦å‘è€…ç»„ä»¶
 	class TriggerEmitterCompoment :
 		public ECSCompoment
 	{
 		friend class TriggerSystem;
 		CHU_COMPOMENT_DEF(ECSCompomentType::TriggerEmitterCompoment);
+    public:
+        // <è§¦å‘å™¨, è§¦å‘è€…> å›è°ƒæ§åˆ¶å™¨
+        using EnterCallback = std::function<void(ECSEntity*, ECSEntity*)>;
+        using LeaveCallback = std::function<void(ECSEntity*)>;
 	private:
 		bool m_bDisabled = false;
 		bool m_bTriggered = false;
+        EnterCallback m_pEnterCallback;
+        LeaveCallback m_pLeaveCallback;
 	public:
 		bool IsDisabled()const noexcept { return m_bDisabled; }
 		void SetDisabled(bool b)noexcept
@@ -46,9 +41,13 @@ namespace sokoban
 				m_bTriggered = false;
 		}
 		bool IsTriggered()const noexcept { return m_bTriggered; }
+        EnterCallback GetEnterCallback()const noexcept { return m_pEnterCallback; }
+        void SetEnterCallback(EnterCallback cb)noexcept { m_pEnterCallback = cb; }
+        LeaveCallback GetLeaveCallback()const noexcept { return m_pLeaveCallback; }
+        void SetLeaveCallback(LeaveCallback cb)noexcept { m_pLeaveCallback = cb; }
 	};
 
-	/// \brief ´¥·¢ÏµÍ³
+	/// \brief è§¦å‘ç³»ç»Ÿ
 	class TriggerSystem :
 		public ECSSystem
 	{
@@ -63,6 +62,6 @@ namespace sokoban
 	public:
 		void AddEntity(ECSEntity* p)override;
 		void RemoveEntity(ECSEntity* p)override;
-		void UpdateEntity(ECSEntity* p)override;
+		void UpdateEntity(float delta, ECSEntity* p)override;
 	};
 }

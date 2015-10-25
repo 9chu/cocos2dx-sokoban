@@ -8,6 +8,8 @@
         </Folder>
         <Folder Name="Level">
           <TmxFile Name="1.tmx" />
+          <TmxFile Name="2.tmx" />
+          <TmxFile Name="3.tmx" />
         </Folder>
       </RootFolder>
     </Group>

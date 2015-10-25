@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-up" width="9" height="9" tilewidth="30" tileheight="30" nextobjectid="1">
+ <tileset firstgid="1" name="Tiles" tilewidth="30" tileheight="30">
+  <image source="../Texture/Tiles.png" width="128" height="128"/>
+  <tile id="0">
+   <properties>
+    <property name="type" value="wall"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="type" value="box"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="type" value="target"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="type" value="player"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="块层 1" width="9" height="9">
+  <data encoding="base64">
+   AQAAAAEAAAABAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAAAFAAAABQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAAAFAAAABQAAAAEAAAAAAAAAAQAAAAEAAAABAAAAAQAAAAUAAAAFAAAABQAAAAEAAAAAAAAAAQAAAAYAAAABAAAAAQAAAAEAAAABAAAABQAAAAEAAAABAAAAAQAAAAYAAAABAAAAAAAAAAEAAAABAAAABQAAAAUAAAAFAAAABQAAAAYAAAABAAAAAAAAAAEAAAAFAAAABQAAAAUAAAABAAAABQAAAAUAAAABAAAAAAAAAAEAAAAFAAAABQAAAAUAAAABAAAAAQAAAAEAAAABAAAAAAAAAAEAAAABAAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAA
+  </data>
+ </layer>
+ <layer name="块层 2" width="9" height="9">
+  <data encoding="base64">
+   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  </data>
+ </layer>
+</map>

@@ -2,17 +2,18 @@
 * \file PlayerCompoment.h
 * \author chu
 * \date 2015/10/24
-* \brief Íæ¼Ò×é¼ş
+* \brief ç©å®¶ç»„ä»¶
 */
 #pragma once
 #include "../Common.h"
 #include "../Base/ECSBase.h"
 
+#include "BaseCompoment.h"
 #include "TileCompoment.h"
 
 namespace sokoban
 {
-	/// \brief Íæ¼ÒÊäÈë×´Ì¬
+	/// \brief ç©å®¶è¾“å…¥çŠ¶æ€
 	enum class PlayerInput
 	{
 		None = 0,
@@ -21,25 +22,46 @@ namespace sokoban
 		Up,
 		Down
 	};
+    
+    /// \brief ç©å®¶åŠ¨ç”»çŠ¶æ€
+    /// \note å…³è”updateAnimation::s_PlayerAnimationList
+    enum class PlayerAnimation
+    {
+        LeftAnimation = 0,
+        RightAnimation,
+        UpAnimation,
+        DownAnimation
+    };
 
-	/// \brief Íæ¼ÒÊäÈë½Ó¿Ú
+	/// \brief ç©å®¶è¾“å…¥æ¥å£
 	struct IPlayerInputProvider
 	{
-		/// \brief »ñÈ¡Íæ¼Ò×î½üÒ»Ö¡µÄÊäÈë
-		/// \note ÊäÈë×´Ì¬½«ÔÚÏÂÒ»Ö¡±»Çå³ı
+		/// \brief è·å–ç©å®¶æœ€è¿‘ä¸€å¸§çš„è¾“å…¥
+		/// \note è¾“å…¥çŠ¶æ€å°†åœ¨ä¸‹ä¸€å¸§è¢«æ¸…é™¤
 		virtual PlayerInput GetPlayerLastInput()const noexcept = 0;
 	};
 
-	/// \brief Íæ¼Ò×é¼ş
+	/// \brief ç©å®¶ç»„ä»¶
 	class PlayerCompoment :
 		public ECSCompoment
 	{
 		CHU_COMPOMENT_DEF(ECSCompomentType::PlayerCompoment);
+    private:
+        float m_iAnimationTimer = 0;
+        PlayerAnimation m_iAnimationState = PlayerAnimation::DownAnimation;
+        uint32_t m_iAnimationFrame = 0;
+    public:
+        float GetAnimationTimer()const noexcept { return m_iAnimationTimer; }
+        float SetAnimationTimer(float iTimer)noexcept { m_iAnimationTimer = iTimer; return iTimer; }
+        PlayerAnimation GetAnimationState()const noexcept { return m_iAnimationState; }
+        void SetAnimationState(PlayerAnimation iAnimation)noexcept { m_iAnimationState = iAnimation; }
+        uint32_t GetAnimationFrame()const noexcept { return m_iAnimationFrame; }
+        uint32_t SetAnimationFrame(uint32_t iFrame)noexcept { m_iAnimationFrame = iFrame; return iFrame; }
 	public:
 		PlayerCompoment() {}
 	};
 
-	/// \brief Íæ¼ÒÂß¼­ÏµÍ³
+	/// \brief ç©å®¶é€»è¾‘ç³»ç»Ÿ
 	class PlayerSystem :
 		public ECSSystem
 	{
@@ -49,7 +71,10 @@ namespace sokoban
 	public:
 		PlayerSystem(cocos2d::RefPtr<TileSystem> pTileSystem, IPlayerInputProvider* pProvider)
 			: m_pTileSystem(pTileSystem), m_pProvider(pProvider) {}
+    public:
+        void changeAnimation(PlayerInput iInput, PlayerCompoment* pPlayerCompoment);
+        void updateAnimation(float delta, BaseCompoment* pBaseCompoment, PlayerCompoment* pPlayerCompoment);
 	public:
-		void UpdateEntity(ECSEntity* p)override;
+		void UpdateEntity(float delta, ECSEntity* p)override;
 	};
 }

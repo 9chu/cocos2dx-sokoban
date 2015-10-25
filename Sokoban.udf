@@ -3,8 +3,8 @@
     <Item Key="CocosRecentOperation">
       <Value ctype="CocosRecentOperation">
         <LastPublishType Value="Resource" />
-        <IsLastPublish Value="False" />
-        <LastRunType Value="Windows" />
+        <IsLastPublish Value="True" />
+        <LastRunType Value="Mac" />
       </Value>
     </Item>
     <Item Key="PackageParamsKey">
@@ -14,7 +14,7 @@
         <LuaEncryptSign Value="" />
         <Android_PackageName Value="cn.bakachu.Sokoban" />
         <AndroidkeyStore Value="" />
-        <AndroidVersion Value="android-20" />
+        <AndroidVersion Value="android-10" />
         <iOS_Target Value="Sokoban-mobile" />
         <iOS_BundleID Value="" />
         <Platform Value="Android" />

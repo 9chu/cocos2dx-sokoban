@@ -22,13 +22,13 @@ void TileSystem::setObjectAt(int32_t iXIndex, int32_t iYIndex, ECSEntity* p)noex
 
 void TileSystem::setObjectAt(cocos2d::Vec2 vecPosition, ECSEntity* p)noexcept
 {
-	setObjectAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight, p);
+	setObjectAt((int)(vecPosition.x + m_iTileWidth / 2.f) / m_iTileWidth, (int)(vecPosition.y + m_iTileHeight / 2.f) / m_iTileHeight, p);
 }
 
 void TileSystem::clearObjectMap()noexcept
 {
 	if (m_arrObjectMap.size() > 0)
-		::memset(&m_arrObjectMap[0], 0, sizeof(m_arrObjectMap[0]) * m_arrObjectList.size());
+		::memset(&m_arrObjectMap[0], 0, sizeof(m_arrObjectMap[0]) * m_arrObjectMap.size());
 }
 
 ECSEntity* TileSystem::GetObjectAt(int32_t iXIndex, int32_t iYIndex)const noexcept
@@ -42,7 +42,7 @@ ECSEntity* TileSystem::GetObjectAt(int32_t iXIndex, int32_t iYIndex)const noexce
 
 ECSEntity* TileSystem::GetObjectAt(cocos2d::Vec2 vecPosition)const noexcept
 {
-	return GetObjectAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight);
+	return GetObjectAt((int)(vecPosition.x + m_iTileWidth / 2.f) / m_iTileWidth, (int)(vecPosition.y + m_iTileHeight / 2.f) / m_iTileHeight);
 }
 
 TileObjectType TileSystem::GetObjectTypeAt(int32_t iXIndex, int32_t iYIndex)const noexcept
@@ -55,7 +55,7 @@ TileObjectType TileSystem::GetObjectTypeAt(int32_t iXIndex, int32_t iYIndex)cons
 
 TileObjectType TileSystem::GetObjectTypeAt(cocos2d::Vec2 vecPosition)const noexcept
 {
-	return GetObjectTypeAt((int)vecPosition.x / m_iTileWidth, (int)vecPosition.y / m_iTileHeight);
+	return GetObjectTypeAt((int)(vecPosition.x + m_iTileWidth / 2.f) / m_iTileWidth, (int)(vecPosition.y + m_iTileHeight / 2.f) / m_iTileHeight);
 }
 
 void TileSystem::ResetSize(uint32_t iWidth, uint32_t iHeight)

@@ -15,7 +15,7 @@ void ECSSystem::RemoveEntity(ECSEntity* p)
 {
 }
 
-void ECSSystem::UpdateEntity(ECSEntity* p)
+void ECSSystem::UpdateEntity(float delta, ECSEntity* p)
 {
 }
 
@@ -44,13 +44,8 @@ void ECSStage::AddEntity(cocos2d::RefPtr<ECSEntity> p)
     m_vecEntityList.emplace_back(p);
     
     // 通知所有组件新加入对象
-    auto i = m_vecEntityList.begin();
-    while (i != m_vecEntityList.end())
-    {
-        for (auto& j : m_vecSystemList)
-            j->AddEntity(*i);
-        ++i;
-    }
+    for (auto& j : m_vecSystemList)
+        j->AddEntity(p);
 }
 
 void ECSStage::update(float delta)
@@ -70,7 +65,7 @@ void ECSStage::update(float delta)
     while (i != m_vecEntityList.end())
     {
         for (auto& j : m_vecSystemList)
-            j->UpdateEntity(*i);
+            j->UpdateEntity(delta, *i);
         ++i;
     }
     

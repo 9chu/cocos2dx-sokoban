@@ -99,7 +99,7 @@ namespace sokoban
         
         /// \brief 更新对象
         /// \param[in] p 对象指针
-        virtual void UpdateEntity(ECSEntity* p);
+        virtual void UpdateEntity(float delta, ECSEntity* p);
         
         /// \brief 更新事件
         virtual void Update(float delta);
