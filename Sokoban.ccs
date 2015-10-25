@@ -5,6 +5,7 @@
       <RootFolder Name=".">
         <Folder Name="Texture">
           <Image Name="Tiles.png" />
+          <Image Name="Restart.png" />
         </Folder>
         <Folder Name="Level">
           <TmxFile Name="1.tmx" />

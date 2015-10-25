@@ -26,8 +26,14 @@ namespace sokoban
 		cocos2d::RefPtr<cocos2d::Touch> m_pTouch;
 		cocos2d::Vec2 m_vecBasePosition;
 		cocos2d::Vec2 m_vecNewPosition;
+        
+        cocos2d::RefPtr<cocos2d::Sprite> m_pRestartButton;
+        std::function<void()> m_pRestartButtonClickedCallback;
 	public:
 		PlayerInputLayer();
+    public:
+        const std::function<void()>& GetRestartButtonClickedCallback()const { return m_pRestartButtonClickedCallback; }
+        void SetRestartButtonClickedCallback(const std::function<void()>& pCallback) { m_pRestartButtonClickedCallback = pCallback; }
 	protected:
 		void update(float delta)override;
 		bool onTouchBegan(cocos2d::Touch* pTouch, cocos2d::Event* unused_event)override;
@@ -58,9 +64,10 @@ namespace sokoban
         float m_fLevelPassDelay = 0.f;  // 通关延迟计数器
         uint32_t m_iActivedBoxCount = 0;  // 当前已经激活的箱子数量
 	public:
-		GameStageLayer(IPlayerInputProvider* pInput);
+		GameStageLayer(PlayerInputLayer* pInputLayer);
     protected:
 		void update(float delta)override;
+        void onRestartButtonClicked();
 		void onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter);
 		void onLeaveTrigger(ECSEntity* pEmitter);
 	public:

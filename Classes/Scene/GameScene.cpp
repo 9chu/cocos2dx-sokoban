@@ -2,12 +2,23 @@
 
 #include "../Base/CocosHelper.h"
 
-#define TOUCH_EMIT_LENGTH 30.f
+#define TOUCH_EMIT_LENGTH 50.f
+#define RESTART_BUTTON_WIDTH 64.f
+#define RESTART_BUTTON_HEIGHT 64.f
 
 NAMESPACE_SOKOBAN;
 
 PlayerInputLayer::PlayerInputLayer()
 {
+    // 装载按钮
+    {
+        m_pRestartButton = Sprite::create("Texture/Restart.png");
+        assert(m_pRestartButton);
+        
+        m_pRestartButton->setPosition(Vec2(RESTART_BUTTON_WIDTH / 2.f, SOKOBAN_DESIGN_HEIGHT - RESTART_BUTTON_HEIGHT / 2.f));
+        addChild(m_pRestartButton);
+    }
+    
 	scheduleUpdate();  // 启动update
 }
 
@@ -40,6 +51,18 @@ bool PlayerInputLayer::onTouchBegan(cocos2d::Touch* pTouch, cocos2d::Event* unus
 	if (m_pTouch)
 		return false;
 
+    Rect tRestartButtonPosition(
+        m_pRestartButton->getPositionX() - RESTART_BUTTON_WIDTH / 2.f,
+        m_pRestartButton->getPositionY() - RESTART_BUTTON_HEIGHT / 2.f,
+        RESTART_BUTTON_WIDTH, RESTART_BUTTON_HEIGHT);
+    if (tRestartButtonPosition.containsPoint(pTouch->getLocation()))
+    {
+        // 重开关卡事件
+        if (m_pRestartButtonClickedCallback)
+            m_pRestartButtonClickedCallback();
+        return true;
+    }
+    
 	m_pTouch = pTouch;
 	m_vecNewPosition = m_vecBasePosition = pTouch->getLocation();
 	return true;
@@ -67,19 +90,22 @@ PlayerInput PlayerInputLayer::GetPlayerLastInput()const noexcept
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GameStageLayer::GameStageLayer(IPlayerInputProvider* pInput)
+GameStageLayer::GameStageLayer(PlayerInputLayer* pInputLayer)
 {
     // 初始化ECS系统
     m_pBaseSystem = make_ref<BaseSystem>(this);
 	m_pTileSystem = make_ref<TileSystem>(SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT);
 	m_pTriggerSystem = make_ref<TriggerSystem>(SOKOBAN_TILE_WIDTH, SOKOBAN_TILE_HEIGHT);
-	m_pPlayerSystem = make_ref<PlayerSystem>(m_pTileSystem, pInput);
+	m_pPlayerSystem = make_ref<PlayerSystem>(m_pTileSystem, pInputLayer);
 
     // 添加所有的System
     AddSystem(m_pBaseSystem.get());
 	AddSystem(m_pTileSystem.get());
 	AddSystem(m_pTriggerSystem.get());
 	AddSystem(m_pPlayerSystem.get());
+    
+    // 绑定跨层次事件
+    pInputLayer->SetRestartButtonClickedCallback(std::bind(&GameStageLayer::onRestartButtonClicked, this));
 }
 
 void GameStageLayer::update(float delta)
@@ -102,10 +128,16 @@ void GameStageLayer::update(float delta)
                 if (!LoadLevel(++m_iLevelNo))
                 {
                     // 显示通关界面
+                    // !TODO
                 }
             }
         }
     }
+}
+
+void GameStageLayer::onRestartButtonClicked()
+{
+    LoadLevel(m_iLevelNo);
 }
 
 void GameStageLayer::onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
@@ -123,7 +155,7 @@ void GameStageLayer::onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
     {
         // 启动通关计数器
         m_bLevelPass = true;
-        m_fLevelPassDelay = 1.5f;  // 延迟1.5秒判断通关
+        m_fLevelPassDelay = 1.f;  // 延迟1秒判断通关
     }
 }
 
@@ -251,6 +283,13 @@ bool GameStageLayer::LoadLevel(uint32_t iLevelNo)
     float tCenterX = pFile->GetWidth() * SOKOBAN_TILE_WIDTH / 2.f;
     float tCenterY = pFile->GetHeight() * SOKOBAN_TILE_HEIGHT / 2.f;
     m_pBaseSystem->GetCamera()->setPosition(tCenterX, tCenterY);
+    float tScaleFactor = 2;
+    while (pFile->GetWidth() * SOKOBAN_TILE_WIDTH * tScaleFactor > SOKOBAN_DESIGN_WIDTH * 0.8f ||
+        pFile->GetWidth() * SOKOBAN_TILE_HEIGHT * tScaleFactor > SOKOBAN_DESIGN_HEIGHT * 0.9f)
+    {
+        tScaleFactor -= 0.25f;
+    }
+    m_pBaseSystem->GetCamera()->setScale(1.f / tScaleFactor, 1.f / tScaleFactor);
     
     return true;
 }
