@@ -80,15 +80,32 @@ GameStageLayer::GameStageLayer(IPlayerInputProvider* pInput)
 	AddSystem(m_pTileSystem.get());
 	AddSystem(m_pTriggerSystem.get());
 	AddSystem(m_pPlayerSystem.get());
-
-	// !TODO
-	LoadLevel("Level/3.tmx");
 }
 
 void GameStageLayer::update(float delta)
 {
     // 更新组件逻辑
     ECSStage::update(delta);
+    
+    // 通关计数器
+    if (m_bLevelPass)
+    {
+        m_fLevelPassDelay -= delta;
+        if (m_fLevelPassDelay <= 0.f)
+        {
+            m_bLevelPass = false;
+            m_fLevelPassDelay = 0.f;
+            
+            // 过关逻辑
+            if (m_iActivedBoxCount >= m_iBoxCount)
+            {
+                if (!LoadLevel(++m_iLevelNo))
+                {
+                    // 显示通关界面
+                }
+            }
+        }
+    }
 }
 
 void GameStageLayer::onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
@@ -100,6 +117,14 @@ void GameStageLayer::onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter)
     
     // 红色箱子的坐标
     pSprite->setTextureRect(Rect(60.f, 0.f, 30.f, 30.f));
+    
+    ++m_iActivedBoxCount;
+    if (m_iActivedBoxCount >= m_iBoxCount)
+    {
+        // 启动通关计数器
+        m_bLevelPass = true;
+        m_fLevelPassDelay = 1.5f;  // 延迟1.5秒判断通关
+    }
 }
 
 void GameStageLayer::onLeaveTrigger(ECSEntity* pEmitter)
@@ -111,12 +136,38 @@ void GameStageLayer::onLeaveTrigger(ECSEntity* pEmitter)
     
     // 黄色箱子的坐标
     pSprite->setTextureRect(Rect(30.f, 0.f, 30.f, 30.f));
+    
+    --m_iActivedBoxCount;
 }
 
-void GameStageLayer::LoadLevel(const char* pPath)
+bool GameStageLayer::LoadLevel(uint32_t iLevelNo)
 {
-	RefPtr<TMXFile> pFile = make_ref<TMXFile>(pPath);
+    // 清空所有对象
+    m_iLevelNo = 0;
+    m_iBoxCount = 0;
+    m_bLevelPass = false;
+    m_fLevelPassDelay = 0.f;
+    m_iActivedBoxCount = 0;
+    ClearEntity();
+    
+    // 检查关卡是否存在
+    auto tLevelFullPath = StringUtils::format("Level/%d.tmx", iLevelNo);
+    if (!FileUtils::getInstance()->isFileExist(tLevelFullPath))
+    {
+        CHU_LOGERROR("level %d not exists.", iLevelNo);
+        return false;
+    }
+    
+    // 装载关卡
+	RefPtr<TMXFile> pFile = make_ref<TMXFile>(tLevelFullPath.c_str());
 
+    // 初始化关卡数据
+    m_iLevelNo = iLevelNo;
+    m_iBoxCount = 0;
+    m_bLevelPass = false;
+    m_fLevelPassDelay = 0.f;
+    m_iActivedBoxCount = 0;
+    
 	// 设置系统的大小
 	m_pTileSystem->ResetSize(pFile->GetWidth(), pFile->GetHeight());
 
@@ -177,6 +228,9 @@ void GameStageLayer::LoadLevel(const char* pPath)
                                 // 绑定事件回调
                                 pEmitter->SetEnterCallback(std::bind(&GameStageLayer::onEnterTrigger, this, placeholders::_1, placeholders::_2));
                                 pEmitter->SetLeaveCallback(std::bind(&GameStageLayer::onLeaveTrigger, this, placeholders::_1));
+                                
+                                // 关卡计数
+                                ++m_iBoxCount;
 							}
 							else if (tValue == "target")
 								pEntity->SetCompoment(make_ref<TriggerCompoment>());
@@ -197,6 +251,8 @@ void GameStageLayer::LoadLevel(const char* pPath)
     float tCenterX = pFile->GetWidth() * SOKOBAN_TILE_WIDTH / 2.f;
     float tCenterY = pFile->GetHeight() * SOKOBAN_TILE_HEIGHT / 2.f;
     m_pBaseSystem->GetCamera()->setPosition(tCenterX, tCenterY);
+    
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +260,10 @@ void GameStageLayer::LoadLevel(const char* pPath)
 GameScene::GameScene()
 {
 	auto p = make_ref<PlayerInputLayer>();
-	AddLayer(p.get(), 2);
-    AddLayer(make_ref<GameStageLayer>(p.get()).get(), 1);
+    auto pStage = make_ref<GameStageLayer>(p.get());
+	
+    AddLayer(p.get(), 2);
+    AddLayer(pStage.get(), 1);
+    
+    pStage->LoadLevel(1);
 }

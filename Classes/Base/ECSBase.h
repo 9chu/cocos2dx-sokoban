@@ -124,6 +124,9 @@ namespace sokoban
         
         /// \brief 添加一个实体
         void AddEntity(cocos2d::RefPtr<ECSEntity> p);
+        
+        /// \brief 清空
+        void ClearEntity();
     protected:
         void update(float delta)override;
         void onEnter()override;

@@ -48,6 +48,18 @@ void ECSStage::AddEntity(cocos2d::RefPtr<ECSEntity> p)
         j->AddEntity(p);
 }
 
+void ECSStage::ClearEntity()
+{
+    auto i = m_vecEntityList.begin();
+    while (i != m_vecEntityList.end())
+    {
+        // 通知所有组件移除对象
+        for (auto& j : m_vecSystemList)
+            j->RemoveEntity(*i);
+        i = m_vecEntityList.erase(i);
+    }
+}
+
 void ECSStage::update(float delta)
 {
     Layer::update(delta);

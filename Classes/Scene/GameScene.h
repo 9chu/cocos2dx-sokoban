@@ -50,10 +50,11 @@ namespace sokoban
 		cocos2d::RefPtr<PlayerSystem> m_pPlayerSystem;
         
         // 关卡信息
-        uint32_t m_iLevelNo = 1;  // 关卡标记
+        uint32_t m_iLevelNo = 0;  // 关卡标记
         uint32_t m_iBoxCount = 0;  // 箱子数量
         
         // 关卡状态
+        bool m_bLevelPass = false;  // 通关标志
         float m_fLevelPassDelay = 0.f;  // 通关延迟计数器
         uint32_t m_iActivedBoxCount = 0;  // 当前已经激活的箱子数量
 	public:
@@ -63,7 +64,7 @@ namespace sokoban
 		void onEnterTrigger(ECSEntity* pTrigger, ECSEntity* pEmitter);
 		void onLeaveTrigger(ECSEntity* pEmitter);
 	public:
-		void LoadLevel(const char* pPath);
+		bool LoadLevel(uint32_t iLevelNo);
     };
     
     /// \brief 游戏场景
